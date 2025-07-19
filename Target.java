@@ -1,4 +1,3 @@
-
 import java.net.*;
 import java.io.*;
 
@@ -23,20 +22,28 @@ class OnlineTarget implements Target {
 
     public boolean tryPassword(String password) {
         try {
-            String urlString = "http://localhost/login.php?login=admin&password=" + URLEncoder.encode(password, "UTF-8");
-            URL url = new URL (urlString);
-            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-            String response;
-            while ((response = in.readLine()) != null) {
-                if (response.contains("Connexion réussie")) {
-                    System.out.println("Connexion réussie avec : " + password);
-                    return true;
-                }
+            String TARGET_URL = "http://localhost/login.php";
+            URL url = new URL(TARGET_URL);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            
+            // Configuration de la requête POST
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            
+            // Envoi des paramètres
+            String params = "login=admin&password=" + URLEncoder.encode(password, "UTF-8");
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(params.getBytes());
+                os.flush();
             }
-            in.close();
+            
+            int responseCode = conn.getResponseCode();
+            conn.disconnect();
+            
+            return responseCode == HttpURLConnection.HTTP_OK;
+            
         } catch (Exception e) {
-            System.out.println("Erreur lors de la connexion en ligne : " + e.getMessage());
+            e.printStackTrace();
+            return false;}
         }
-        return false;
-    }
 }

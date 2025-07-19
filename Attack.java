@@ -37,7 +37,7 @@ class DictionaryAttack implements Attack {
 
     public void execute(Target target) {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("dictionnaire.txt"));
+            BufferedReader reader = new BufferedReader(new FileReader("dictionnaire"));
             String password;
             while ((password = reader.readLine()) != null) {
                 if (target.tryPassword(password)) {
