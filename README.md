@@ -17,8 +17,8 @@ L’architecture du projet repose sur une structure MVC (Modèle-Vue-Contrôleur
 
 #### Diagramme de Classes UML
 
-> ![Diagramme UML principal](Classe UML.png)  
-*(Insérer le diagramme UML du projet ici)*
+> ![Diagramme UML principal](Password-Cracker-Factory- /Classe UML.PNG)  
+*(Insérer le diagramme UML du projet ici)
 
 ---
 
