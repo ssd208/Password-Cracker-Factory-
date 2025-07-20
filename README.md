@@ -9,8 +9,6 @@ Ce rapport présente une synthèse de l’architecture logicielle du projet, le 
 
 ### 1. Architecture Logicielle
 
-## 🧱 Architecture logicielle
-
 L’architecture du projet repose sur une séparation claire des responsabilités et l’utilisation du patron de conception **Fabrique** (Factory Method et Abstract Factory). Le système est conçu pour être **modulaire** et **évolutif**, permettant de combiner dynamiquement deux types de stratégies d’attaque (Brute Force, Dictionnaire) avec deux types de cibles (locale, en ligne).
 
 Chaque type d’attaque est encapsulé dans une classe spécifique qui implémente une interface commune, facilitant ainsi l’extension et le remplacement. De la même manière, les cibles d’authentification sont gérées via une abstraction commune permettant de manipuler indifféremment des cibles locales ou distantes.
