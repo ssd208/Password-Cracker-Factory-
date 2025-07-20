@@ -1,8 +1,7 @@
 # Password-Cracker-Factory-
 Implémentation de techniques de cassage de mots de passe via le patron de conception  « Fabrique »
-# Plateforme Web de Gestion d'Examens avec Correction IA et Détection de Plagiat
 
-## Rapport Succinct
+## Rapport Succincte
 
 Ce rapport présente une synthèse de l’architecture logicielle du projet, le choix des patrons de conception, les variantes implémentées et propose quelques pistes d’amélioration.
 
@@ -10,52 +9,97 @@ Ce rapport présente une synthèse de l’architecture logicielle du projet, le 
 
 ### 1. Architecture Logicielle
 
-L’architecture du projet repose sur une structure MVC (Modèle-Vue-Contrôleur) afin de séparer les responsabilités :  
-- **Modèle** : gestion des données des examens, utilisateurs, résultats et historique de corrections.  
-- **Vue** : interface utilisateur web responsive, adaptée aux différents profils (étudiant, enseignant, administrateur).  
-- **Contrôleur** : logique métier, gestion des flux (création d’examens, correction automatique, détection de plagiat).
+## 🧱 Architecture logicielle
+
+L’architecture du projet repose sur une séparation claire des responsabilités et l’utilisation du patron de conception **Fabrique** (Factory Method et Abstract Factory). Le système est conçu pour être **modulaire** et **évolutif**, permettant de combiner dynamiquement deux types de stratégies d’attaque (Brute Force, Dictionnaire) avec deux types de cibles (locale, en ligne).
+
+Chaque type d’attaque est encapsulé dans une classe spécifique qui implémente une interface commune, facilitant ainsi l’extension et le remplacement. De la même manière, les cibles d’authentification sont gérées via une abstraction commune permettant de manipuler indifféremment des cibles locales ou distantes.
+
+La classe centrale du système (`CrackerApp`) utilise une fabrique pour instancier dynamiquement la bonne combinaison attaque + cible selon les arguments passés en ligne de commande.
 
 #### Diagramme de Classes UML
 
 > ![Diagramme UML principal](Password-Cracker-Factory- /Classe UML.PNG)  
-*(Insérer le diagramme UML du projet ici)
-
----
 
 ### 2. Choix des Patrons de Conception
+## Patrons de conception utilisés et justification
 
-Nous avons privilégié plusieurs patrons pour répondre aux exigences du projet :
+Le projet repose principalement sur l’utilisation des **patrons de conception**  Factory Method et  Abstract Factory afin de garantir une modularité et une extensibilité du système.
 
-- **Singleton** : utilisé pour la gestion centralisée de la configuration de la plateforme et la connexion à la base de données, garantissant une instance unique tout au long du cycle de vie de l’application.
-- **Factory** : pour la création flexible d’objets liés aux types d’examens ou de corrections (manuelle/automatique).
-- **Strategy** : afin d’appliquer différentes méthodes de correction automatique selon la matière ou le type d’exercice.
-- **Observer** : pour notifier automatiquement les utilisateurs (étudiants/enseignants) lors de la publication des résultats ou de la détection de plagiat.
+### 1. Patron Fabrique (Factory Method / Abstract Factory)
 
-#### Justification
-Ces choix permettent :
-- Une meilleure extensibilité et modularité,
-- Une adaptation dynamique aux besoins métiers,
-- Une gestion efficace des notifications et des processus automatisés.
+Nous avons utilisé une Fabrique pour instancier dynamiquement les bonnes **stratégies d’attaque** (Brute Force ou Dictionnaire) en fonction du type de **cible** (locale ou en ligne), selon les arguments fournis à l’exécution.
 
----
+#### Justification :
+
+- Permet de **séparer la logique d’instanciation** du reste du programme.
+- Facilite l’**ajout de nouvelles variantes** (ex. : nouvelle attaque, nouvelle cible) sans modifier la structure existante.
+- Respecte le **principe ouvert/fermé** du SOLID : ouvert à l’extension, fermé à la modification.
+- Rend l’outil **modulaire** : chaque combinaison (attaque + cible) est encapsulée et interchangeable.
+
+La **Fabrique** est responsable de créer une combinaison (`Stratégie d’attaque + Cible`)
 
 ### 3. Variantes Implémentées
 
-- **Correction IA** : plusieurs algorithmes sont proposés (correction par mots-clés, par similarité sémantique, adaptation pour QCM ou réponses ouvertes).
-- **Détection de Plagiat** : intégration de différentes variantes (comparaison textuelle, analyse sémantique, vérification par sources externes).
-- **Gestion des rôles utilisateurs** : possibilité d’ajouter de nouveaux profils métiers sans impacter la structure existante.
+Le système permet de simuler quatre variantes d’attaque en combinant deux types de stratégies (Brute Force et Dictionnaire) avec deux types de cibles (locale et en ligne). Ces variantes sont sélectionnées dynamiquement à l’aide des arguments fournis à l’exécution.
 
----
+### 1. Brute Force + Cible Locale
+
+Cette variante génère automatiquement toutes les combinaisons de caractères possibles (a-z, 0-9, etc.) jusqu’à une certaine longueur maximale.  
+Le mot de passe généré est testé sur une cible locale simulée par un programme Java contenant les identifiants en dur.
+
+-  Avantage : rapide à exécuter en local, sans dépendances réseau.
+-  Limite : inefficace pour des mots de passe longs.
+
+### 2. Brute Force + Cible en ligne
+
+Même approche que ci-dessus, mais cette fois les tentatives sont envoyées vers un serveur distant via des requêtes HTTP.  
+La réponse HTML permet de détecter si la tentative est réussie ou non.
+
+- Simule une attaque réelle contre un formulaire web(login.php).
+- Beaucoup plus lent à cause des temps de réponse réseau.
+
+###  3. Dictionnaire + Cible Locale
+
+Une liste de mots de passe potentiels est lue depuis un fichier texte (dictionnaire.txt).  
+Chaque mot est testé sur la cible locale. C’est une méthode plus rapide et plus réaliste que le Brute Force, si le dictionnaire est bien choisi.
+
+- Rapide et efficace si le mot de passe est dans le dictionnaire.
+-  Échec garanti si le mot n’y figure pas.
+
+### 4. Dictionnaire + Cible en ligne
+
+Le dictionnaire est utilisé pour tester des mots de passe contre une cible en ligne.  
+Chaque mot génère une requête HTTP vers un formulaire PHP distant(login.php).
+
+-  Utilisée dans la pratique pour attaquer des services web.
+- Peut être ralentie ou bloquée par des mécanismes de sécurité .
 
 ### 4. Pistes d’Amélioration
 
-- **Optimisation des algorithmes IA** : approfondir l’intégration de modèles de machine learning pour une correction plus fine.
-- **Amélioration de l’UI/UX** : proposer une interface plus intuitive et accessible.
-- **Extension du module de plagiat** : intégrer la vérification sur d’autres sources (Internet, publications académiques).
-- **Internationalisation** : permettre la gestion multilingue de la plateforme.
-- **Automatisation des rapports d’examen** : générer des synthèses automatiques pour les enseignants.
+Plusieurs axes d'amélioration peuvent être envisagés pour enrichir et renforcer le projet :
 
----
+###  1. Optimisation des performances
 
-*Pour toute contribution ou suggestion, merci de créer une issue ou une pull request sur ce dépôt.*
+- Utiliser le **multithreading** pour accélérer le Brute Force.
+- Ajouter une **barre de progression** ou un affichage du nombre de tentatives.
+- Gérer des files de tâches pour répartir les requêtes en ligne.
+
+###  2. Extension de la fabrique
+
+- Créer une **interface graphique (GUI)** pour lancer les attaques sans ligne de commande.
+
+### 3. Renforcement du côté "attaque en ligne"
+
+- Gérer les **cookies/sessions HTTP**
+- Ajouter la gestion des **CAPTCHA** ou mécanismes anti-bot (au moins leur détection)
+
+### .4 Logs et reporting
+
+- Ajouter un **système de logs** pour tracer toutes les tentatives (succès/échecs).
+- Générer un **rapport final** (ex. : durée, mot de passe trouvé, nombre de tentatives…).
+
+### 5. Amélioration des tests
+
+- Intégrer des **tests automatiques** pour vérifier le comportement sur différentes cibles.
 
